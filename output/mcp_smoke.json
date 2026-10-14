@@ -1,0 +1,149 @@
+{
+  "description": "Smoke test of the campus-customs MCP server through Claude Code's MCP connection (Problem 4). Each output is the tool result exactly as Claude Code received it.",
+  "run_started_utc": "2026-10-14T04:19:32Z",
+  "connection": {
+    "client": "Claude Code (Claude desktop app, Code tab)",
+    "config_file": ".mcp.json",
+    "server": "campus-customs",
+    "transport": "stdio",
+    "command": ".venv/bin/python mcp_server/server.py"
+  },
+  "tests": [
+    {
+      "request": "Check the stock for CC-TEE-WHITE in size S",
+      "tool": "get_inventory",
+      "claude_code_tool": "mcp__campus-customs__get_inventory",
+      "arguments": {
+        "sku": "CC-TEE-WHITE",
+        "size": "S"
+      },
+      "output": {
+        "found": true,
+        "sku": "CC-TEE-WHITE",
+        "name": "Classic Bulldog Tee",
+        "size": "S",
+        "qty": 0,
+        "location": "Aisle B"
+      },
+      "verification": {
+        "sql": [
+          "SELECT sku, name, size, qty, location FROM inventory WHERE sku = ? AND size = ?"
+        ],
+        "database_values": {
+          "sku": "CC-TEE-WHITE",
+          "name": "Classic Bulldog Tee",
+          "size": "S",
+          "qty": 0,
+          "location": "Aisle B"
+        },
+        "matches_database": true,
+        "evidence_matches_raw_result": true
+      }
+    },
+    {
+      "request": "Get the details for invoice 501",
+      "tool": "get_invoice_details",
+      "claude_code_tool": "mcp__campus-customs__get_invoice_details",
+      "arguments": {
+        "invoice_id": 501
+      },
+      "output": {
+        "found": true,
+        "invoice": {
+          "id": 501,
+          "vendor_id": 1,
+          "amount": 840,
+          "due_date": "2026-08-28",
+          "status": "open",
+          "description": "Rush reprint CC-TEE-WHITE S"
+        },
+        "vendor": {
+          "id": 1,
+          "name": "Bulldog Print Co",
+          "specialty": "apparel reprint",
+          "lead_days": 5
+        },
+        "date_today": "2026-08-31",
+        "overdue": true,
+        "days_overdue": 3
+      },
+      "verification": {
+        "sql": [
+          "SELECT id, vendor_id, amount, due_date, status, description FROM invoices WHERE id = ?",
+          "SELECT id, name, specialty, lead_days FROM vendors WHERE id = ?",
+          "SELECT date_today FROM desk"
+        ],
+        "database_values": {
+          "invoice": {
+            "id": 501,
+            "vendor_id": 1,
+            "amount": 840.0,
+            "due_date": "2026-08-28",
+            "status": "open",
+            "description": "Rush reprint CC-TEE-WHITE S"
+          },
+          "vendor": {
+            "id": 1,
+            "name": "Bulldog Print Co",
+            "specialty": "apparel reprint",
+            "lead_days": 5
+          },
+          "date_today": "2026-08-31"
+        },
+        "matches_database": true,
+        "evidence_matches_raw_result": true
+      }
+    },
+    {
+      "request": "Get the details for lease 1",
+      "tool": "get_lease_details",
+      "claude_code_tool": "mcp__campus-customs__get_lease_details",
+      "arguments": {
+        "lease_id": 1
+      },
+      "output": {
+        "found": true,
+        "lease": {
+          "id": 1,
+          "space_name": "Chapel Street shop",
+          "landlord": "Elm City Properties",
+          "monthly_rent": 2400,
+          "next_due": "2026-09-02",
+          "notes": null
+        },
+        "date_today": "2026-08-31",
+        "days_until_due": 2
+      },
+      "verification": {
+        "sql": [
+          "SELECT id, space_name, landlord, monthly_rent, next_due, notes FROM leases WHERE id = ?",
+          "SELECT date_today FROM desk"
+        ],
+        "database_values": {
+          "lease": {
+            "id": 1,
+            "space_name": "Chapel Street shop",
+            "landlord": "Elm City Properties",
+            "monthly_rent": 2400.0,
+            "next_due": "2026-09-02",
+            "notes": null
+          },
+          "date_today": "2026-08-31"
+        },
+        "matches_database": true,
+        "evidence_matches_raw_result": true
+      }
+    }
+  ],
+  "verification": {
+    "database": "data/campus_customs_new.db",
+    "opened": "read-only (mode=ro)",
+    "desk_date_today": "2026-08-31",
+    "derived_values_rule": "overdue = status is open and due_date is before desk.date_today; days counted from desk.date_today",
+    "sha256_before_tests": "d47e4704fc94521c2097dadcb7ae04e0ce1977a33be066884e386a345af1df33",
+    "sha256_after_verification": "d47e4704fc94521c2097dadcb7ae04e0ce1977a33be066884e386a345af1df33",
+    "records_changed": false,
+    "all_results_match": true,
+    "verified_utc": "2026-10-14T04:20:21Z"
+  }
+}

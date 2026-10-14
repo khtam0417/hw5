@@ -1,0 +1,37 @@
+# Secrets: copy .env.example to .env and fill in your own values. Only the example is committed.
+.env
+.env.*
+!.env.example
+
+# Databases: the submission requires the two in data/, so only they are committed: the untouched
+# original and the final working copy. Backups, journals and any other database copies stay out.
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+data/*
+!data/campus_customs.db
+!data/campus_customs_new.db
+
+# Installed dependencies and build output
+.venv/
+venv/
+__pycache__/
+*.pyc
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+.pytest_cache/
+
+# Local editor, preview and Claude Code settings (including local permission approvals)
+.claude/
+.vscode/
+.idea/
+.DS_Store

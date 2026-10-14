@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Customs Resolved Board</title>
+<meta name="description" content="Screenshots of the Campus Customs React dashboard after the Problem 9 full run: each ticket's final state, its earlier runs, and the cash.">
+<style>
+  :root {
+    --black: #0b0a0d;
+    --surface: #151318;
+    --surface-2: #1c1920;
+    --border: #2d2833;
+    --text: #f7f2f6;
+    --text-muted: #b3a9b9;
+    --pink: #ff4fa3;
+    --pink-light: #ff9ccc;
+    --pink-wash: rgba(255, 79, 163, 0.12);
+    --pink-line: rgba(255, 79, 163, 0.45);
+    color-scheme: dark;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    color: var(--text);
+    background: var(--black);
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--black); }
+  a { color: var(--pink-light); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.88em; color: var(--pink-light); overflow-wrap: anywhere; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  .masthead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--pink); color: var(--black); font-weight: 800; }
+  h1 { margin: 0; font-size: 26px; line-height: 1.2; }
+  .brand p { margin: 2px 0 0; color: var(--text-muted); font-size: 14px; }
+  .chip { padding: 6px 12px; border: 1px solid var(--pink); border-radius: 999px; background: var(--pink-wash); color: var(--pink-light); font-size: 13px; font-weight: 700; }
+  .intro { margin: 0 0 18px; color: var(--text-muted); max-width: 920px; }
+
+  .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-bottom: 18px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--border); }
+  .summary div { padding: 14px 16px; background: var(--surface); }
+  .summary .k { display: block; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .summary .v { display: block; margin-top: 2px; font-weight: 800; }
+  .summary .s { display: block; color: var(--text-muted); font-size: 13px; }
+  .criteria { margin: 0 0 30px; padding: 16px 18px; border: 1px solid var(--pink-line); border-radius: 14px; background: var(--pink-wash); }
+  .criteria h2 { margin: 0 0 6px; font-size: 15px; color: var(--pink-light); }
+  .criteria p { margin: 0 0 8px; }
+  .criteria ul { margin: 0; padding-left: 18px; }
+  .criteria ul + p { margin: 8px 0 0; }
+
+  .group-title { margin: 34px 0 12px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pink-light); }
+  .ticket { margin-bottom: 26px; padding: 22px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
+  .ticket.resolved { border-color: var(--pink); box-shadow: 0 0 0 1px var(--pink-line); }
+  .ticket-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 8px; }
+  .ticket-head h2 { margin: 0; font-size: 22px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px; border-radius: 999px; font-size: 13px; font-weight: 800; border: 1px solid var(--pink-light); color: var(--pink-light); }
+  .badge.resolved { background: var(--pink); border-color: var(--pink); color: var(--black); }
+  .badge.vendor { border-style: dashed; }
+  .outcome { margin: 6px 0 0; }
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0 18px; }
+  .fact { padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); font-size: 14px; }
+  .fact b { display: block; color: var(--pink-light); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
+  .blocker { margin: 0 0 18px; padding: 12px 14px; border: 1px dashed var(--pink-line); border-radius: 12px; background: var(--pink-wash); font-size: 14px; }
+  .final { margin: 0 0 16px; }
+  .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .shots-title { margin: 18px 0 10px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  figure { margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-2); }
+  figure.final-shot { border-color: var(--pink-line); }
+  figure a { display: block; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { margin-top: 10px; font-size: 14px; color: var(--text-muted); }
+  figcaption strong { color: var(--text); }
+  .note { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+
+  @media (min-width: 821px) {
+    .final figure { max-width: 760px; }
+  }
+  @media (max-width: 820px) {
+    .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .facts { grid-template-columns: 1fr; }
+    .shots { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .page { padding: 20px 16px 40px; }
+    .summary { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">CC</span>
+      <div>
+        <h1>Resolved board</h1>
+        <p>Campus Customs: the React dashboard after the Problem 9 full run</p>
+      </div>
+    </div>
+    <span class="chip">Real Claude agents · working database · decisions by a person</span>
+  </header>
+
+  <p class="intro">
+    These are real screenshots of the React dashboard (<code>frontend/</code>, served by <code>npm run dev</code> at http://localhost:5175) on the live backend and the working database. Headless Chrome captured them at 1440&nbsp;px wide. Each one opens a run with a dashboard link (<code>#ticket-N/run-&lt;run id&gt;</code>), and the run id is shown in the run's header.
+  </p>
+  <ul class="intro">
+    <li>The <strong>final-state</strong> screenshots were taken after the clarification run, on 2026-10-14 at 08:08 UTC.</li>
+    <li>The <strong>earlier</strong> screenshots are kept unchanged as evidence of how the board looked then. Six were taken at about 07:25 UTC, before the completion pass. Ticket 101's run 3 was taken at 07:43 UTC, before the owner's clarification.</li>
+  </ul>
+  <p class="intro">The images are in <code>resolved_board/</code> next to this page, so it works offline. Click an image to open it full size.</p>
+
+  <section class="summary" aria-label="Final state of the full run">
+    <div><span class="k">Ticket 101</span><span class="v">Resolved</span><span class="s">For internal processing: invoice paid, drafts complete and unsent, nothing ordered or shipped</span></div>
+    <div><span class="k">Ticket 102</span><span class="v">Resolved</span><span class="s">Rent paid once, before it was due</span></div>
+    <div><span class="k">Ticket 103</span><span class="v">Resolved</span><span class="s">Request for 20 declined; an unsent 10% offer for 8 kept</span></div>
+    <div><span class="k">Checking</span><span class="v">$3,400.00 → $160.00</span><span class="s">Two approved payments, $3,240.00 in total</span></div>
+  </section>
+
+  <section class="criteria" aria-labelledby="criteria-title">
+    <h2 id="criteria-title">What "resolved" means here</h2>
+    <p>This is a draft-only simulation. Sending vendor or customer messages is outside its scope and is never required to complete the shop's internal work. A ticket is <strong>resolved for internal processing</strong> when the Boss, through the agent and MCP workflow, has confirmed four things: every payment the ticket needs is paid, every vendor draft is complete, the latest customer draft is accurate, and no decision is open. No status was set by hand. Resolution never means that anything was sent, ordered, shipped, delivered or sold, or that a customer accepted anything.</p>
+    <ul>
+      <li><strong>101:</strong> invoice 501 is paid, the reprint request (draft #3) is complete, and the replacement customer update (draft #4) is accurate. The Boss checked all three in run 4 and resolved the ticket. The drafts remain unsent, and no order, shipment or delivery is confirmed.</li>
+      <li><strong>102:</strong> the rent was paid once, after a person's approval. That is everything the shop owed.</li>
+      <li><strong>103:</strong> the owner declined the 20 that can't be supplied, the Boss recorded it, and no decision is left open. The 10% offer for 8 stays an unsent alternative, not a sale.</li>
+    </ul>
+    <p>Before the owner's clarification, the Boss applied the earlier criteria in run 3 and kept 101 open, because it counted sending the vendor order as shop-side work. That screenshot is kept below.</p>
+  </section>
+
+  <h2 class="group-title">Resolved</h2>
+
+  <section class="ticket resolved" aria-labelledby="t101">
+    <div class="ticket-head">
+      <h2 id="t101">#101 · Bulldog tee</h2>
+      <span class="badge resolved">✓ Resolved for internal processing</span>
+    </div>
+    <p class="outcome">Invoice 501 ($840.00) was paid after a person approved it, so Bulldog Print Co can ship. The reprint request (draft #3; estimated arrival 2026-09-05, only if sent and fulfilled) and a refreshed customer update (draft #4, replacing draft #1) are prepared. After the owner clarified that sending is outside this simulation, the Boss checked the payment and both drafts and resolved the ticket for internal processing (update #9). The drafts remain unsent, and no order, shipment or delivery is confirmed. The customer's order has not been fulfilled: size S is still 0 on hand.</p>
+    <div class="facts">
+      <div class="fact"><b>Agents</b>Run 1: Boss → Inventory, Accounting and Customer Service. Run 2: Boss → Inventory. Run 3: Boss → Customer Service. Run 4: the Boss alone, with the owner's clarification.</div>
+      <div class="fact"><b>Human approval</b>Request #1, $840.00, approved by Ken Tam. Payment #1.</div>
+      <div class="fact"><b>Cash</b>Checking went from $3,400.00 to $2,560.00. Run 4 changed nothing.</div>
+    </div>
+    <p class="blocker"><strong>Optional, outside this simulation:</strong> a person may review and send drafts #3 and #4, checking the date in #4 first, and discard draft #1. No order exists until draft #3 is sent.</p>
+    <div class="final">
+      <figure class="final-shot">
+        <a href="resolved_board/final-ticket-101.png"><img src="resolved_board/final-ticket-101.png" width="1440" height="2373" alt="Final dashboard state for ticket 101, run 4 (run 20261014-080030-3a7c0a): the Resolved badge and banner, the Boss's checks of the payment and drafts 3 and 4, optional next steps outside the simulation, checking at $160.00, and all three tickets Resolved in the list."></a>
+        <figcaption><strong>Final state.</strong> Run 4 carried the owner's clarification as its note. The Boss checked the payment and both drafts itself, then resolved the ticket for internal processing (update #9): 6 steps, 5 tool calls. "Next for a person" lists only optional steps outside this simulation.</figcaption>
+      </figure>
+    </div>
+    <p class="shots-title">Earlier screenshots</p>
+    <div class="shots">
+      <figure>
+        <a href="resolved_board/ticket-101-run-3.png"><img src="resolved_board/ticket-101-run-3.png" width="1440" height="2343" alt="Earlier capture of ticket 101, run 3 (run 20261014-073908-0bfcd4): Run finished, ticket not resolved, Waiting for vendor, Customer Service's draft 4, and the steps a person had to do next under the earlier criteria."></a>
+        <figcaption><strong>Run 3: kept open under the earlier criteria.</strong> Taken at 07:43 UTC, before the clarification. Customer Service replaced the out-of-date customer draft with draft #4, and the Boss kept Waiting for vendor (update #7): 9 steps, 7 tool calls.</figcaption>
+      </figure>
+      <figure>
+        <a href="resolved_board/ticket-101-run-2.png"><img src="resolved_board/ticket-101-run-2.png" width="1440" height="2322" alt="Earlier capture of ticket 101, run 2: Waiting for vendor and Inventory's draft shipment request #3 with an estimated arrival of Sep 5, not sent."></a>
+        <figcaption><strong>Run 2: reprint requested as a draft.</strong> Taken before the completion pass. The payment was confirmed, and Inventory saved draft #3: 9 steps, 7 tool calls.</figcaption>
+      </figure>
+      <figure>
+        <a href="resolved_board/ticket-101-run-1.png"><img src="resolved_board/ticket-101-run-1.png" width="1440" height="2642" alt="Earlier capture of ticket 101, run 1: the Boss, Inventory, Accounting and Customer Service at work, and request #1 for invoice 501."></a>
+        <figcaption><strong>Run 1: blocked vendor, payment requested.</strong> Request #1 ($840.00) was created and customer draft #1 saved: 18 steps, 14 tool calls.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="ticket resolved" aria-labelledby="t102">
+    <div class="ticket-head">
+      <h2 id="t102">#102 · Rent due</h2>
+      <span class="badge resolved">✓ Resolved</span>
+    </div>
+    <p class="outcome">The $2,400.00 rent for lease 1 (Chapel Street shop, Elm City Properties) was paid once, after a person approved it on 2026-08-31, before the 2026-09-02 due date. Lease 1 is next due 2026-10-02.</p>
+    <div class="facts">
+      <div class="fact"><b>Agents</b>Run 1: Boss → Facilities → Accounting. Run 2: the Boss alone.</div>
+      <div class="fact"><b>Human approval</b>Request #2, $2,400.00, approved by Ken Tam. Payment #2.</div>
+      <div class="fact"><b>Cash</b>Checking went from $2,560.00 to $160.00.</div>
+    </div>
+    <div class="final">
+      <figure class="final-shot">
+        <a href="resolved_board/final-ticket-102.png"><img src="resolved_board/final-ticket-102.png" width="1440" height="2076" alt="Final dashboard state for ticket 102, run 2 (run 20261014-072123-c99d07): the Resolved badge and banner saying the shop's work is complete and nothing is left to do, checking at $160.00, and all three tickets Resolved in the list."></a>
+        <figcaption><strong>Final state.</strong> Run 2 resolved the ticket (update #6) after confirming payment 2. The ticket list shows the final states of all three tickets.</figcaption>
+      </figure>
+    </div>
+    <p class="shots-title">Earlier screenshots (before the completion pass)</p>
+    <div class="shots">
+      <figure>
+        <a href="resolved_board/ticket-102-run-2.png"><img src="resolved_board/ticket-102-run-2.png" width="1440" height="2052" alt="Earlier capture of ticket 102, run 2: Resolved, with ticket 103 still Waiting for customer in the list."></a>
+        <figcaption><strong>Run 2: resolved.</strong> Taken before the completion pass: 4 steps, 3 tool calls.</figcaption>
+      </figure>
+      <figure>
+        <a href="resolved_board/ticket-102-run-1.png"><img src="resolved_board/ticket-102-run-1.png" width="1440" height="2575" alt="Earlier capture of ticket 102, run 1: the Boss, Facilities and Accounting at work, and request #2 for $2,400.00."></a>
+        <figcaption><strong>Run 1: payment requested.</strong> Facilities verified the lease, and Accounting created request #2 ($2,400.00): 16 steps, 13 tool calls.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="ticket resolved" aria-labelledby="t103">
+    <div class="ticket-head">
+      <h2 id="t103">#103 · Bulk hoodie discount</h2>
+      <span class="badge resolved">✓ Resolved: request declined</span>
+    </div>
+    <p class="outcome">The owner declined the original request for 20 hoodies because the shop can't supply them now: 8 are in stock and no supplier is recorded for the rest. The approved offer of 8 at 10% off ($52.20 each, $417.60 in all) stays an unsent alternative (draft #2). It is not an accepted sale. Nothing was sent, sold, fulfilled or delivered.</p>
+    <div class="facts">
+      <div class="fact"><b>Agents</b>Run 1: Boss → Inventory, Accounting and Customer Service. Runs 2 and 3: the Boss, each with the owner's note.</div>
+      <div class="fact"><b>Owner's decisions</b>Approved the 10% draft offer, then declined the request for 20 and kept the offer as an alternative. Neither was a payment.</div>
+      <div class="fact"><b>Cash</b>$0.00 change. Revenue is never added.</div>
+    </div>
+    <div class="final">
+      <figure class="final-shot">
+        <a href="resolved_board/final-ticket-103.png"><img src="resolved_board/final-ticket-103.png" width="1440" height="2178" alt="Final dashboard state for ticket 103, run 3 (run 20261014-074130-3c9e3f): the Resolved banner, the Boss's summary of the declined request and the unsent alternative offer, and an optional next step to send draft 2."></a>
+        <figcaption><strong>Final state.</strong> Run 3 recorded the owner's decision, declined the request for 20 and kept the 8 at 10% off unsent, then resolved the original request (update #8): 3 steps, 2 tool calls.</figcaption>
+      </figure>
+    </div>
+    <p class="shots-title">Earlier screenshots (before the completion pass)</p>
+    <div class="shots">
+      <figure>
+        <a href="resolved_board/ticket-103-run-2.png"><img src="resolved_board/ticket-103-run-2.png" width="1440" height="2238" alt="Earlier capture of ticket 103, run 2: the owner's approval of the 10% draft offer recorded, status Waiting for customer."></a>
+        <figcaption><strong>Run 2: the owner's approval of the offer recorded.</strong> The ticket stayed Waiting for customer (update #4).</figcaption>
+      </figure>
+      <figure>
+        <a href="resolved_board/ticket-103-run-1.png"><img src="resolved_board/ticket-103-run-1.png" width="1440" height="2666" alt="Earlier capture of ticket 103, run 1: stock, pricing and the 10% and 15% options, and draft 2."></a>
+        <figcaption><strong>Run 1: offer drafted.</strong> 8 in stock and no supplier, the 10% and 15% prices worked out, and draft #2 saved unsent: 17 steps, 13 tool calls.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <p class="note">
+    The same facts are in <code>resolved_tickets.json</code>, including its completion criteria, in the Actual sections and Cash tab of <code>desk_tickets.html</code>, and in <code>audit_trail.json</code>, records 41–156, labeled "Problem 9 full run". They all match the working database: tickets 101, 102 and 103 <code>resolved</code>, with checking at $160.00.
+  </p>
+</div>
+</body>
+</html>
